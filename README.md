@@ -4,6 +4,7 @@ From the root folder:
 ```
 mkdir bin
 cd bin
+cmake ..\src\
 cmake --build .
 ```
 ## Run
