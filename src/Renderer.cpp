@@ -6,7 +6,7 @@ GLsizei Renderer::FRAME_HEIGHT;
 DrawObject Renderer::line_primitive;
 DrawObject Renderer::sprite_primitive;
 
-GLuint Renderer::shapes[100];
+GLuint Renderer::shapes[400];
 GLuint Renderer::shapes_end = 0;
 
 Shader Renderer::screen_shader;
@@ -39,7 +39,9 @@ void Renderer::drawFrame(glm::vec4 bg_color) {
 	initFrame(bg_color, true);
 
 	Renderer::screen_shader.use();
-	Renderer::screen_shader.setUintV("shapes", 100, Renderer::shapes);
+	Renderer::screen_shader.setUintV("shapes", 400, Renderer::shapes);
+	Renderer::screen_shader.setUint("shapes_end", Renderer::shapes_end);
+	Renderer::screen_shader.setFloat2("screen_size", glm::vec2(Renderer::FRAME_WIDTH, Renderer::FRAME_HEIGHT));
 
 	// glDrawTriangles
 	// draw triangle to screen:
@@ -56,6 +58,14 @@ void Renderer::drawFrame(glm::vec4 bg_color) {
 	MainWindow::drawUI();
 
 	glfwSwapBuffers(MainWindow::window);
+}
+
+void Renderer::rect(unsigned int x, unsigned int y, unsigned int size_x, unsigned int size_y){
+	shapes[0] = x;
+	shapes[1] = y;
+	shapes[2] = size_x;
+	shapes[3] = size_y;
+	shapes_end++;
 }
 
 void Renderer::setupPrimitives() {

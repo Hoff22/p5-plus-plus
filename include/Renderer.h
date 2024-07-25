@@ -59,12 +59,14 @@ public:
 	static Shader screen_shader;
 	static DrawObject sprite_primitive;
 	static DrawObject line_primitive;
-	static GLuint shapes[100];
+	static GLuint shapes[400];
 	static GLuint shapes_end;
 
 	// returns a VAO for the specified vertex array and indice array;
 	static void   buildTrianglesVAO(const vector<float>& model_coefficients, const vector<float>& nromal_coefficients, const vector<float>& uv_coefficients, const vector<GLuint>& indices, DrawObject* obj);
 	static GLuint buildTrianglesVAO(const vector<float>& vertex_position, const vector<GLuint>& face_indexes);
+
+	static void rect(unsigned int x, unsigned int y, unsigned int size_x, unsigned int size_y);
 
 	static void initFrame(glm::vec4 bg_color, bool clear_color = false);
 

@@ -62,6 +62,8 @@ int main() {
 
 		glm::vec4 bg_color = glm::vec4(p_f[0], p_f[1], p_f[2], p_f[3]);
 
+		Renderer::rect(rand() % 200 + 300, rand() % 200 + 300, 100, 100);
+
 		Renderer::drawFrame(bg_color);
 	}
 	// clean up
