@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.10)
+project(p5plusplus)
+add_executable(p5pp main.cpp glad.c MainWindow.cpp Ocean.cpp Renderer.cpp Scene.cpp stb_image.cpp tiny_obj_loader.cpp )
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(./glfw-3.3.5)
+add_subdirectory(./imgui)
+
+target_link_libraries(p5pp PUBLIC glfw imgui)
+
