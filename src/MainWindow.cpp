@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 
-int MainWindow::SCR_WIDTH = 1600;
+int MainWindow::SCR_WIDTH = 1000;
 int MainWindow::SCR_HEIGHT = 1000;
 bool MainWindow::is_open_bool;
 GLFWwindow* MainWindow::window;
