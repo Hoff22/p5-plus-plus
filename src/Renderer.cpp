@@ -6,8 +6,9 @@ GLsizei Renderer::FRAME_HEIGHT;
 DrawObject Renderer::line_primitive;
 DrawObject Renderer::sprite_primitive;
 
-GLuint Renderer::shapes[400];
-GLuint Renderer::shapes_end = 0;
+shaderData Renderer::sd;
+
+GLuint Renderer::dataBuffer = 0;
 
 Shader Renderer::screen_shader;
 
@@ -39,9 +40,10 @@ void Renderer::drawFrame(glm::vec4 bg_color) {
 	initFrame(bg_color, true);
 
 	Renderer::screen_shader.use();
-	Renderer::screen_shader.setUintV("shapes", 400, Renderer::shapes);
-	Renderer::screen_shader.setUint("shapes_end", Renderer::shapes_end);
 	Renderer::screen_shader.setFloat2("screen_size", glm::vec2(Renderer::FRAME_WIDTH, Renderer::FRAME_HEIGHT));
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Renderer::dataBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(shaderData), &Renderer::sd, GL_DYNAMIC_DRAW);
 
 	// glDrawTriangles
 	// draw triangle to screen:
@@ -60,12 +62,10 @@ void Renderer::drawFrame(glm::vec4 bg_color) {
 	glfwSwapBuffers(MainWindow::window);
 }
 
-void Renderer::rect(unsigned int x, unsigned int y, unsigned int size_x, unsigned int size_y){
-	shapes[0] = x;
-	shapes[1] = y;
-	shapes[2] = size_x;
-	shapes[3] = size_y;
-	shapes_end++;
+void Renderer::rect(int x, int y, int size_x, int size_y, glm::vec4 color){
+	sd.shapes[sd.shapes_end] = glm::ivec4(x,y,size_x,size_y);
+	sd.shapes_color[sd.shapes_end] = color;
+	sd.shapes_end++;
 }
 
 void Renderer::setupPrimitives() {
@@ -116,6 +116,15 @@ void Renderer::setupPrimitives() {
 	);
 
 	screen_shader = Shader("shaders/vert.glsl", "shaders/frag.glsl");
+}
+
+void Renderer::initShaderDataBuffer() {
+	GLuint binding = 0;
+	glGenBuffers(1, &Renderer::dataBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Renderer::dataBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, Renderer::dataBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 int Renderer::setup_GLAD_GLFW_OpenGL_Shard(string program_window_name) {

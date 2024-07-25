@@ -54,15 +54,17 @@ int main() {
 
 	curTime = glfwGetTime();
 
+	Renderer::initShaderDataBuffer();
+
 	while (MainWindow::is_open()) {
 		Scene::deltaTime = glfwGetTime() - curTime;
 		curTime = glfwGetTime();
 
 		MainWindow::handle_input();
 
-		glm::vec4 bg_color = glm::vec4(p_f[0], p_f[1], p_f[2], p_f[3]);
+		Renderer::sd.shapes_end = 0;
 
-		Renderer::rect(rand() % 200 + 300, rand() % 200 + 300, 100, 100);
+		glm::vec4 bg_color = glm::vec4(p_f[0], p_f[1], p_f[2], p_f[3]);
 
 		Renderer::drawFrame(bg_color);
 	}
