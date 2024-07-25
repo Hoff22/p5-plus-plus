@@ -6,6 +6,9 @@ GLsizei Renderer::FRAME_HEIGHT;
 DrawObject Renderer::line_primitive;
 DrawObject Renderer::sprite_primitive;
 
+GLuint Renderer::shapes[100];
+GLuint Renderer::shapes_end = 0;
+
 Shader Renderer::screen_shader;
 
 void Renderer::initFrame(glm::vec4 bg_color, bool clear_color) {
@@ -34,6 +37,9 @@ void Renderer::drawFrame(glm::vec4 bg_color) {
 	Renderer::FRAME_HEIGHT = MainWindow::SCR_HEIGHT;
 
 	initFrame(bg_color, true);
+
+	Renderer::screen_shader.use();
+	Renderer::screen_shader.setUintV("shapes", 100, Renderer::shapes);
 
 	// glDrawTriangles
 	// draw triangle to screen:

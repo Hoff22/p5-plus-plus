@@ -8,7 +8,6 @@
 #include <vector>
 #include <queue>
 
-#include <tiny_obj_loader.h>
 #include <stb_image.h>
 
 #include <glm/glm.hpp>
@@ -60,6 +59,8 @@ public:
 	static Shader screen_shader;
 	static DrawObject sprite_primitive;
 	static DrawObject line_primitive;
+	static GLuint shapes[100];
+	static GLuint shapes_end;
 
 	// returns a VAO for the specified vertex array and indice array;
 	static void   buildTrianglesVAO(const vector<float>& model_coefficients, const vector<float>& nromal_coefficients, const vector<float>& uv_coefficients, const vector<GLuint>& indices, DrawObject* obj);

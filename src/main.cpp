@@ -49,7 +49,7 @@ void initScene() {
 
 int main() {
 
-	Renderer::setup_GLAD_GLFW_OpenGL_Shard("Shard Sample 2");
+	Renderer::setup_GLAD_GLFW_OpenGL_Shard("p5++");
 	initScene();
 
 	curTime = glfwGetTime();
