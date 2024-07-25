@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
+
 project(p5plusplus)
-add_executable(p5pp main.cpp glad.c MainWindow.cpp Ocean.cpp Renderer.cpp Scene.cpp stb_image.cpp tiny_obj_loader.cpp )
+
+file(GLOB p5pp_SRC CONFIGURE_DEPENDS 
+	"*.h"
+    "*.c"
+    "*.cpp"
+)
+
+add_executable(p5pp ${p5pp_SRC})
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
