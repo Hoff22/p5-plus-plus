@@ -16,6 +16,8 @@
 
 #include "Shader.h"
 
+#define MAX_SHAPES 500
+
 using namespace std;
 
 struct DrawObject {
@@ -50,6 +52,12 @@ struct DrawObject {
 	}
 };
 
+struct shaderData{
+	glm::ivec4 shapes[64];
+	glm::vec4 shapes_color[64];
+	GLuint shapes_end;
+};
+
 class Renderer
 {
 public:
@@ -59,19 +67,21 @@ public:
 	static Shader screen_shader;
 	static DrawObject sprite_primitive;
 	static DrawObject line_primitive;
-	static GLuint shapes[400];
-	static GLuint shapes_end;
+	static shaderData sd;
+	static GLuint dataBuffer;
 
 	// returns a VAO for the specified vertex array and indice array;
 	static void   buildTrianglesVAO(const vector<float>& model_coefficients, const vector<float>& nromal_coefficients, const vector<float>& uv_coefficients, const vector<GLuint>& indices, DrawObject* obj);
 	static GLuint buildTrianglesVAO(const vector<float>& vertex_position, const vector<GLuint>& face_indexes);
 
-	static void rect(unsigned int x, unsigned int y, unsigned int size_x, unsigned int size_y);
+	static void rect(int x, int y, int size_x, int size_y, glm::vec4 color);
 
 	static void initFrame(glm::vec4 bg_color, bool clear_color = false);
 
 	static void drawFrame(glm::vec4 bg_color);
 	
+	static void initShaderDataBuffer();
+
 	static void setupPrimitives();
 
 	static int setup_GLAD_GLFW_OpenGL_Shard(string program_window_name);
