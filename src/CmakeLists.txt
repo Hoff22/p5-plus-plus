@@ -6,6 +6,7 @@ file(GLOB p5pp_SRC CONFIGURE_DEPENDS
 	"*.h"
     "*.c"
     "*.cpp"
+    "*.hpp"
 )
 
 add_executable(p5pp ${p5pp_SRC})
@@ -20,4 +21,6 @@ add_subdirectory(./glfw-3.3.5)
 add_subdirectory(./imgui)
 
 target_link_libraries(p5pp PUBLIC glfw imgui)
+
+target_compile_features(p5pp PRIVATE cxx_std_17)
 

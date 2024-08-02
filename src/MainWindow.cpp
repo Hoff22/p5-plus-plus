@@ -98,126 +98,89 @@ int MainWindow::is_open() {
 	return (!glfwWindowShouldClose(window) && is_open_bool);
 }
 
-void MainWindow::handle_input(float _speed) {
-	
+void MainWindow::handle_input() {
 	glfwPollEvents();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	if (ImGui::IsKeyDown('W')) {
-		Scene::is_pressed[2] = true;
-	}
-	else Scene::is_pressed[2] = false;
-
-	if (ImGui::IsKeyDown('A')) {
-		Scene::is_pressed[3] = true;
-
-	}
-	else Scene::is_pressed[3] = false;
-
-	if (ImGui::IsKeyDown('S')) {
-		Scene::is_pressed[4] = true;
-
-	}
-	else Scene::is_pressed[4] = false;
-
-	if (ImGui::IsKeyDown('D')) {
-		Scene::is_pressed[5] = true;
-
-	}
-	else Scene::is_pressed[5] = false;
-
-	double mouse_x, mouse_y;
-	glfwGetCursorPos(window, &mouse_x, &mouse_y);
-	Scene::mouseDeltaX = mouse_x - Scene::lastMouseX;
-	Scene::mouseDeltaY = Scene::lastMouseY - mouse_y;
-	Scene::lastMouseX = mouse_x;
-	Scene::lastMouseY = mouse_y;
-
-	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-		Scene::click[0] = true;
-	}
-	else {
-		Scene::click[0] = false;
-	}
-	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-		Scene::click[1] = true;
-	}
-	else {
-		Scene::click[1] = false;
-	}
-	if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
-		Scene::click[2] = true;
-	}
-	else {
-		Scene::click[2] = false;
-	}
-
-	if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-		Scene::mouse_drag[0] = true;
-	}
-	else Scene::mouse_drag[0] = false;
-	
-	if (ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
-		Scene::mouse_drag[2] = true;
-	}
-	else Scene::mouse_drag[2] = false;	
-
-	if (ImGui::IsKeyDown(ImGuiKey_Space)) {
-	}
-	if (ImGui::IsKeyDown(ImGuiKey_LeftShift)) {
-	}
 }
 
 void MainWindow::drawOptions() {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-	ImVec4 color = ImVec4(Scene::paramsf[0], Scene::paramsf[1], Scene::paramsf[2], Scene::paramsf[3]);
-	ImVec4 backup_color = color;
+	static std::vector<std::pair<int,int>> points;
+	static double curTime = glfwGetTime();
+	static int count = 0;
+	static double sum_dt = 0;
+	static double avg_dt = 0;
+	// MainWindow::ShowExampleAppCustomRendering();
 
-	ImGui::SetNextWindowSize(ImVec2(360,800));
-	ImGui::Begin("Options", 0, ImGuiWindowFlags_NoResize);
-		ImGui::Text("BACKGROUND COLOR");
-		ImGui::Separator();
-		ImGui::ColorPicker4("##picker", (float*)Scene::paramsf, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
-		ImGui::SameLine();
+	ImGui::SetNextWindowSize(ImVec2(400,400));
+	int windowFlags = ImGuiWindowFlags_NoResize;
+	// int windowFalgs = 0;
+	ImGui::Begin("Options", 0, windowFlags);
+	{
+		double deltaTime = glfwGetTime() - curTime;
+		curTime = glfwGetTime();
 
-		ImGui::BeginGroup(); // Lock X position
-		ImGui::Text("Current");
-		ImGui::ColorButton("##current", color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
-		double xpos;
-		double ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-		ImGui::Text("x: %d", std::min(std::max((int)xpos, 0), SCR_WIDTH));
-		ImGui::Text("y: %d", std::min(std::max((int)ypos, 0), SCR_HEIGHT));
-		ImGui::Separator();
-		ImGui::Text("FPS: %d", (int)(1.0f / Scene::deltaTime));
-		ImGui::EndGroup();
-		ImGui::SliderFloat("FOV", &Scene::paramsf[5], 0.0f, 360.0f, "%.2f");
-		ImGui::SliderFloat("Zoom", &Scene::Zoom, 0.0f, 100.0f, "%.2f");
-		ImGui::SliderFloat("Rotate", &Scene::paramsf[10], 0.0, 2048.0, "%.3f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderFloat("Diffuse", &Scene::paramsf[6], 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderFloat("Specular", &Scene::paramsf[7], 0.0f, 100.0f, "%.2f");
-		ImGui::SliderFloat("Reflection", &Scene::paramsf[8], 0.0f, 100.0f, "%.2f");
-		ImGui::SliderFloat("Roughness", &Scene::paramsf[9], 1.0f, 100.0f, "%.2f");
-		//ImGui::SliderFloat("Amplitude", &Scene::paramsf[11], 0.0f, 2.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-		ImGui::DragFloat("Speed", &Scene::paramsf[4], 0.1f, 0.0f, 1.0f, NULL);
-		ImGui::DragFloat("Amplitude", &Scene::paramsf[11], 0.1f, 0.0f, 1.0f, NULL);
-		ImGui::SliderFloat("Frequency", &Scene::paramsf[12], 0.0f, 15.0f, "%.2f");
-		ImGui::SliderFloat("Repeat", &Scene::paramsf[13], 1.0f, 10.0f, "%.2f");
-		if (ImGui::Button("Clear")) {
-			Scene::paramsb[0] = 1;
+		count++;
+		sum_dt += deltaTime;
+		if(count == 100){
+			avg_dt = sum_dt / count;
+			count = 0;
+			sum_dt = 0;
 		}
-		ImGui::SameLine();
-		if (ImGui::Button("Shaders")) {
-			Scene::paramsb[1] = 1;
-		}
+		
+	
+		ImGui::Text("FPS: %d", (int)(1.0 / avg_dt));
 
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        ImVec2 canvas_pos = ImGui::GetCursorScreenPos();            // ImDrawList API uses screen coordinates!
+        ImVec2 canvas_size = ImGui::GetContentRegionAvail();        // Resize canvas to what's available
+        if (canvas_size.x < 50.0f) canvas_size.x = 50.0f;
+        if (canvas_size.y < 50.0f) canvas_size.y = 50.0f;
+        draw_list->AddRectFilledMultiColor(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(50, 50, 50, 255), IM_COL32(50, 50, 60, 255), IM_COL32(60, 60, 70, 255), IM_COL32(50, 50, 60, 255));
+        draw_list->AddRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(255, 255, 255, 255));
 
+        ImGui::InvisibleButton("canvas", canvas_size);
+        ImVec2 mpc = ImVec2(io.MousePos.x - canvas_pos.x, io.MousePos.y - canvas_pos.y);
+        if (ImGui::IsItemHovered())
+        {
+            if (ImGui::IsMouseClicked(0) && points.size() < 4)
+            {
+                points.push_back({mpc.x, mpc.y});
+                std::cout << "points: " << std::endl;
+                for(auto [x,y] : points){
+	        		std::cout << x << " " << y << std::endl;
+	        	}
+	        	std::cout << std::endl;
+            }
+            if (ImGui::IsMouseClicked(1) && !points.empty())
+            {
+                points.pop_back();
+            }
+        }
+
+        for(auto [x, y] : points){
+        	ImVec2 p1(canvas_pos.x + x, canvas_pos.y + y);
+        	draw_list->AddCircleFilled(p1, 7.0f, IM_COL32(255, 255, 0, 255), 32); // Circle
+        }	
+
+        for (int i = 0; i < (int)points.size() - 1; i++){
+        	ImVec2 p1(canvas_pos.x + points[i].first, canvas_pos.y + points[i].second);
+        	ImVec2 p2(canvas_pos.x + points[i + 1].first, canvas_pos.y + points[i + 1].second);
+            draw_list->AddLine(p1, p2, IM_COL32(255, 255, 0, 255), 2.0f);
+        }
+
+        if(points.size() == 4){
+        	ImVec2 p1(canvas_pos.x + points[0].first, canvas_pos.y + points[0].second);
+        	ImVec2 p2(canvas_pos.x + points[3].first, canvas_pos.y + points[3].second);
+            draw_list->AddLine(p1, p2, IM_COL32(255, 255, 0, 255), 2.0f);
+        }
+	}
 	ImGui::End();
 }
 
 void MainWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{    // make sure the viewport matches the new window dimensions; note that width and 
+{   // make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 
 	MainWindow::SCR_HEIGHT = height;

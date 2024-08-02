@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip>
+#include <vector>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -38,7 +40,7 @@ public:
 	static void	drawUI();
 	static void	cleanupUI();
 	static int	is_open();
-	static void	handle_input(float _speed = 1.0);
+	static void	handle_input();
 	static void	drawOptions();
 };
 
