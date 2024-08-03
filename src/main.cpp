@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <chrono>
 
 #include "glUtils.hpp"
 #include "flood_fill.hpp"
@@ -18,8 +19,6 @@
 using namespace std;
 using namespace glm;
 
-#define step_amt 100
-
 int done = 0;
 
 int setup_GLAD_GLFW_OpenGL_Shard(string program_window_name);
@@ -27,6 +26,11 @@ int setup_GLAD_GLFW_OpenGL_Shard(string program_window_name);
 // void step(queue<tuple<int,int,int,int>>& q, glu::shaderData& sd, map<unsigned char, pair<int,int>>& seeds);
 
 int main() {
+
+	using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::milliseconds;
 
 	setup_GLAD_GLFW_OpenGL_Shard("p5++");
 
@@ -49,10 +53,29 @@ int main() {
 
 	Shader sh = Shader("shaders/vert.glsl", "shaders/frag.glsl");
 
-	flf::init();
+	auto t1 = high_resolution_clock::now();
+	flf::init(MainWindow::input_values[0],MainWindow::input_values[1]);
+	auto t2 = high_resolution_clock::now();
+	/* Getting number of milliseconds as a double. */
+    duration<double, std::milli> ms_double = t2 - t1;
+
+    cout << fixed << setprecision(2) << ms_double.count() << "ms to init\n";
+
+    t1 = high_resolution_clock::now();
 
 	while (MainWindow::is_open()) {
 		MainWindow::handle_input();
+
+		if(MainWindow::input_values[4]){
+			MainWindow::input_values[4] = 0;
+			sh = Shader("shaders/vert.glsl", "shaders/frag.glsl");
+		}
+		if(MainWindow::input_values[3]){
+			t1 = high_resolution_clock::now();
+			done = 0;
+			MainWindow::input_values[3] = 0;
+			flf::init(MainWindow::input_values[0],MainWindow::input_values[1]);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -81,23 +104,23 @@ int main() {
 		glfwSwapBuffers(MainWindow::window);
 
 		if(!done){
-			int bigStep = std::min(step_amt, (int)flf::q.size());
-			if(bigStep == 0){
-				done = 1;
-			}
+			int bigStep = MainWindow::input_values[2];
 			while(bigStep--){
-				flf::step();
+				done = flf::step();
 			}
 		}
 		else if(done == 1){
 			done = 2;
 			cout << "Done!" << endl;
-			for(auto [k, v] : flf::seeds){
-				if(k == 0) continue;
-				int idx = v.first * flf::sd.cell_count + v.second;
-				cout << k << ": " << v.first << " " << v.second << " " << idx << endl;
+			for(auto [i, j] : flf::seeds){
+				if(i >= flf::sd.cell_count) continue;
+				int idx = i * flf::sd.cell_count + j;
 				flf::sd.state[idx] = flf::_seed_n + 1;
 			}
+
+			t2 = high_resolution_clock::now();
+			ms_double = t2 - t1;
+			cout << ms_double.count() / 1000.0 << "s to complete\n";
 		}
 	}
 	// clean up

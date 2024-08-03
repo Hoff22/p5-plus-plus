@@ -35,6 +35,7 @@ public:
 	static GLFWwindow*	window;
 	static int			SCR_WIDTH;
 	static int			SCR_HEIGHT;
+	static int input_values[5];
 
 	static int	initUI();
 	static void	drawUI();
@@ -42,5 +43,6 @@ public:
 	static int	is_open();
 	static void	handle_input();
 	static void	drawOptions();
+	static void drawCanvas();
 };
 

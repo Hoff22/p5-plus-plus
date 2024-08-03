@@ -18,7 +18,7 @@ namespace flf{
 	int _seed_n;
 
 	glu::shaderData sd;
-	std::map<int, std::pair<int,int>> seeds;
+	std::vector<std::pair<int,int>> seeds;
 	std::queue<std::tuple<int,int,int,int>> q;
 
 	void init(int cell_n = 200, int seed_n = 255){
@@ -26,6 +26,10 @@ namespace flf{
 		_seed_n = seed_n;
 
 		sd.cell_count = cell_n;
+
+		seeds.clear();
+		seeds = std::vector<std::pair<int,int>>(seed_n+2, {cell_n*3, cell_n*3});
+		while(q.size()) q.pop();
 
 		for(int i = 0; i < sd.cell_count; i++){
 			for(int j = 0; j < sd.cell_count; j++){
@@ -44,15 +48,14 @@ namespace flf{
 			sd.state[idx] = (GLubyte)it;
 			q.push({i,j,(sd.cell_count+1)/2, (GLubyte)it});
 		}
-		seeds[0] = {sd.cell_count*3, sd.cell_count*3};
 	}
 
-	void step(bool debug = 0){
+	int step(bool debug = 0){
 
 		static int step_size_cur = 1000000000;
 
 		if(q.empty()){
-			return;
+			return 1;
 		}
 
 		static int dir[8][2] = {
@@ -78,7 +81,7 @@ namespace flf{
 			std::cout << "queue size: " << q.size() << std::endl;
 		}
 
-		if(sd.state[cur_idx] != try_col) return;
+		if(sd.state[cur_idx] != try_col) return 0;
 
 		for(int d = 0; d < 8; d++){
 			int iof = dir[d][0];
@@ -101,6 +104,7 @@ namespace flf{
 				q.push({ni, nj, (step+1)/2, try_col});
 			}
 		}
-	}
 
+		return 0;
+	}
 }

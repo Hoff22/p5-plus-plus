@@ -3,8 +3,8 @@
 int MainWindow::SCR_WIDTH = 1000;
 int MainWindow::SCR_HEIGHT = 1000;
 bool MainWindow::is_open_bool;
+int MainWindow::input_values[] = {200, 255, 100, 0, 0};
 GLFWwindow* MainWindow::window;
-bool options_hovered;
 
 int MainWindow::initUI() {
 	// FAZER ISSO NA MAIN
@@ -106,7 +106,6 @@ void MainWindow::handle_input() {
 void MainWindow::drawOptions() {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-	static std::vector<std::pair<int,int>> points;
 	static double curTime = glfwGetTime();
 	static int count = 0;
 	static double sum_dt = 0;
@@ -129,54 +128,73 @@ void MainWindow::drawOptions() {
 			sum_dt = 0;
 		}
 		
-	
 		ImGui::Text("FPS: %d", (int)(1.0 / avg_dt));
 
-		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        ImVec2 canvas_pos = ImGui::GetCursorScreenPos();            // ImDrawList API uses screen coordinates!
-        ImVec2 canvas_size = ImGui::GetContentRegionAvail();        // Resize canvas to what's available
-        if (canvas_size.x < 50.0f) canvas_size.x = 50.0f;
-        if (canvas_size.y < 50.0f) canvas_size.y = 50.0f;
-        draw_list->AddRectFilledMultiColor(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(50, 50, 50, 255), IM_COL32(50, 50, 60, 255), IM_COL32(60, 60, 70, 255), IM_COL32(50, 50, 60, 255));
-        draw_list->AddRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(255, 255, 255, 255));
+		ImGui::BeginGroup();
+		ImGui::PushItemWidth(60.0f);
+		ImGui::DragInt("Cells", &input_values[0]);
+		ImGui::DragInt("Seeds", &input_values[1]);
+		ImGui::DragInt("Steps", &input_values[2]);
+		ImGui::PopItemWidth();
+		ImGui::EndGroup();
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		if(ImGui::Button("Generate")) input_values[3] = 1;
+		if(ImGui::Button("Shaders")) input_values[4] = 1;;
+		ImGui::EndGroup();
 
-        ImGui::InvisibleButton("canvas", canvas_size);
-        ImVec2 mpc = ImVec2(io.MousePos.x - canvas_pos.x, io.MousePos.y - canvas_pos.y);
-        if (ImGui::IsItemHovered())
-        {
-            if (ImGui::IsMouseClicked(0) && points.size() < 4)
-            {
-                points.push_back({mpc.x, mpc.y});
-                std::cout << "points: " << std::endl;
-                for(auto [x,y] : points){
-	        		std::cout << x << " " << y << std::endl;
-	        	}
-	        	std::cout << std::endl;
-            }
-            if (ImGui::IsMouseClicked(1) && !points.empty())
-            {
-                points.pop_back();
-            }
-        }
-
-        for(auto [x, y] : points){
-        	ImVec2 p1(canvas_pos.x + x, canvas_pos.y + y);
-        	draw_list->AddCircleFilled(p1, 7.0f, IM_COL32(255, 255, 0, 255), 32); // Circle
-        }	
-
-        for (int i = 0; i < (int)points.size() - 1; i++){
-        	ImVec2 p1(canvas_pos.x + points[i].first, canvas_pos.y + points[i].second);
-        	ImVec2 p2(canvas_pos.x + points[i + 1].first, canvas_pos.y + points[i + 1].second);
-            draw_list->AddLine(p1, p2, IM_COL32(255, 255, 0, 255), 2.0f);
-        }
-
-        if(points.size() == 4){
-        	ImVec2 p1(canvas_pos.x + points[0].first, canvas_pos.y + points[0].second);
-        	ImVec2 p2(canvas_pos.x + points[3].first, canvas_pos.y + points[3].second);
-            draw_list->AddLine(p1, p2, IM_COL32(255, 255, 0, 255), 2.0f);
-        }
+		MainWindow::drawCanvas();
 	}
 	ImGui::End();
+}
+
+void MainWindow::drawCanvas(){
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	static std::vector<std::pair<int,int>> points;
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 canvas_pos = ImGui::GetCursorScreenPos();            // ImDrawList API uses screen coordinates!
+    ImVec2 canvas_size = ImGui::GetContentRegionAvail();        // Resize canvas to what's available
+    if (canvas_size.x < 50.0f) canvas_size.x = 50.0f;
+    if (canvas_size.y < 50.0f) canvas_size.y = 50.0f;
+    draw_list->AddRectFilledMultiColor(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(50, 50, 50, 255), IM_COL32(50, 50, 60, 255), IM_COL32(60, 60, 70, 255), IM_COL32(50, 50, 60, 255));
+    draw_list->AddRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(255, 255, 255, 255));
+
+    ImGui::InvisibleButton("canvas", canvas_size);
+    ImVec2 mpc = ImVec2(io.MousePos.x - canvas_pos.x, io.MousePos.y - canvas_pos.y);
+    if (ImGui::IsItemHovered())
+    {
+        if (ImGui::IsMouseClicked(0) && points.size() < 4)
+        {
+            points.push_back({mpc.x, mpc.y});
+            std::cout << "points: " << std::endl;
+            for(auto [x,y] : points){
+        		std::cout << x << " " << y << std::endl;
+        	}
+        	std::cout << std::endl;
+        }
+        if (ImGui::IsMouseClicked(1) && !points.empty())
+        {
+            points.pop_back();
+        }
+    }
+
+    for(auto [x, y] : points){
+    	ImVec2 p1(canvas_pos.x + x, canvas_pos.y + y);
+    	draw_list->AddCircleFilled(p1, 7.0f, IM_COL32(255, 255, 0, 255), 32); // Circle
+    }	
+
+    for (int i = 0; i < (int)points.size() - 1; i++){
+    	ImVec2 p1(canvas_pos.x + points[i].first, canvas_pos.y + points[i].second);
+    	ImVec2 p2(canvas_pos.x + points[i + 1].first, canvas_pos.y + points[i + 1].second);
+        draw_list->AddLine(p1, p2, IM_COL32(255, 255, 0, 255), 2.0f);
+    }
+
+    if(points.size() == 4){
+    	ImVec2 p1(canvas_pos.x + points[0].first, canvas_pos.y + points[0].second);
+    	ImVec2 p2(canvas_pos.x + points[3].first, canvas_pos.y + points[3].second);
+        draw_list->AddLine(p1, p2, IM_COL32(255, 255, 0, 255), 2.0f);
+    }
 }
 
 void MainWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)

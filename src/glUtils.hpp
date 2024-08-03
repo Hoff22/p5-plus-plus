@@ -12,9 +12,11 @@
 
 namespace glu{
 
+	const int N = 1000000;
+
 	struct shaderData{
 		GLint cell_count;
-		GLubyte state[10000 * 4];
+		GLubyte state[N * 4];
 	};
 	
 	GLuint buildShaderDataBuffer(GLuint binding = 0){
