@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
+#include <queue>
+#include <algorithm>
+#include <set>
 #include <vector>
 #include <map>
 
 #include "glUtils.hpp"
+#include "flood_fill.hpp"
 #include "MainWindow.h"
 #include "Shader.h"
 
@@ -14,7 +18,13 @@
 using namespace std;
 using namespace glm;
 
+#define step_amt 100
+
+int done = 0;
+
 int setup_GLAD_GLFW_OpenGL_Shard(string program_window_name);
+
+// void step(queue<tuple<int,int,int,int>>& q, glu::shaderData& sd, map<unsigned char, pair<int,int>>& seeds);
 
 int main() {
 
@@ -24,10 +34,10 @@ int main() {
 
 	// CW vertex order
 	vector<float> mc = {
-	     0.5f,  0.5f, 0.0f, 1.0f,  // UR
-	     0.5f, -0.5f, 0.0f, 1.0f,  // DR
-	    -0.5f, -0.5f, 0.0f, 1.0f,  // DL
-	    -0.5f,  0.5f, 0.0f, 1.0f   // UL 
+	     1.0f,  1.0f, 0.0f, 1.0f,  // UR
+	     1.0f, -1.0f, 0.0f, 1.0f,  // DR
+	    -1.0f, -1.0f, 0.0f, 1.0f,  // DL
+	    -1.0f,  1.0f, 0.0f, 1.0f   // UL 
 	};
 	vector<GLuint> id = {
 	    0, 1, 3,   // first triangle
@@ -35,8 +45,11 @@ int main() {
 	};
 
 	GLuint VAO = glu::buildTrianglesVAO(mc, id);
+	GLuint DBO = glu::buildShaderDataBuffer();
 
 	Shader sh = Shader("shaders/vert.glsl", "shaders/frag.glsl");
+
+	flf::init();
 
 	while (MainWindow::is_open()) {
 		MainWindow::handle_input();
@@ -56,6 +69,9 @@ int main() {
 		glPolygonMode(GL_BACK, GL_LINE);
 
 		sh.use();
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, DBO);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glu::shaderData), &flf::sd, GL_DYNAMIC_DRAW);
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, id.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(VAO);
@@ -63,6 +79,26 @@ int main() {
 		MainWindow::drawUI();
 		glViewport(0,0,MainWindow::SCR_WIDTH, MainWindow::SCR_HEIGHT);
 		glfwSwapBuffers(MainWindow::window);
+
+		if(!done){
+			int bigStep = std::min(step_amt, (int)flf::q.size());
+			if(bigStep == 0){
+				done = 1;
+			}
+			while(bigStep--){
+				flf::step();
+			}
+		}
+		else if(done == 1){
+			done = 2;
+			cout << "Done!" << endl;
+			for(auto [k, v] : flf::seeds){
+				if(k == 0) continue;
+				int idx = v.first * flf::sd.cell_count + v.second;
+				cout << k << ": " << v.first << " " << v.second << " " << idx << endl;
+				flf::sd.state[idx] = flf::_seed_n + 1;
+			}
+		}
 	}
 	// clean up
 	MainWindow::cleanupUI();

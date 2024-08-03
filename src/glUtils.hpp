@@ -1,10 +1,32 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Shader.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace glu{
+
+	struct shaderData{
+		GLint cell_count;
+		GLubyte state[10000 * 4];
+	};
 	
+	GLuint buildShaderDataBuffer(GLuint binding = 0){
+		GLuint DBO;
+		glGenBuffers(1, &DBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, DBO);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, DBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		return DBO;
+	}
+
 	GLuint buildTrianglesVAO(const std::vector<float>& model_coefficients, const std::vector<GLuint>& indices){
 		GLuint VAO;
 		glGenVertexArrays(1, &VAO);
