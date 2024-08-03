@@ -4,6 +4,124 @@ layout (location = 0) in vec4 aPos;
 out vec4 vertexPos;
 out vec2 screencoords;
 
+layout(std430, binding = 0) buffer bufferData{
+    int cell_count;
+    uint state[10000];
+};
+
+const uint colors[100] = {
+    0xB9D7D9,
+    0x668284,
+    0x2A2829,
+    0x493736,
+    0x7B3B3B,
+    0xD3D5B0,
+    0xB5CEA4,
+    0x9DC19D,
+    0x8C7C62,
+    0x71443F,
+    0xFFEFD3,
+    0xFFFEE4,
+    0xD0ECEA,
+    0x9FD6D2,
+    0x8B7A5E,
+    0x4D3B3B,
+    0xDE6262,
+    0xFFB88C,
+    0xFFD0B3,
+    0xF5E0D3,
+    0x1B676B,
+    0x519548,
+    0x88C425,
+    0xBEF202,
+    0xEAFDE6,
+    0x379F7A,
+    0x78AE62,
+    0xBBB749,
+    0xE0FBAC,
+    0x1F1C0D,
+    0xF0D8A8,
+    0x3D1C00,
+    0x86B8B1,
+    0xF2D694,
+    0xFA2A00,
+    0x23192D,
+    0xFD0A54,
+    0xF57576,
+    0xFEBF97,
+    0xF5ECB7,
+    0xF2E8C4,
+    0x98D9B6,
+    0x3EC9A7,
+    0x2B879E,
+    0x616668,
+    0x805841,
+    0xDCF7F3,
+    0xFFFCDD,
+    0xFFD8D8,
+    0xF5A2A2,
+    0x1D1313,
+    0x24B694,
+    0xD22042,
+    0xA3B808,
+    0x30C4C9,
+    0xA69E80,
+    0xE0BA9B,
+    0xE7A97E,
+    0xD28574,
+    0x3B1922,
+    0xE4DED0,
+    0xABCCBD,
+    0x7DBEB8,
+    0x181619,
+    0xE32F21,
+    0x1C2130,
+    0x028F76,
+    0xB3E099,
+    0xFFEAAD,
+    0xD14334,
+    0x452E3C,
+    0xFF3D5A,
+    0xFFB969,
+    0xEAF27E,
+    0x3B8C88,
+    0xCC0C39,
+    0xE6781E,
+    0xC8CF02,
+    0xF8FCC1,
+    0x1693A7,
+    0x5E9FA3,
+    0xDCD1B4,
+    0xFAB87F,
+    0xF87E7B,
+    0xB05574,
+    0x4D3B3B,
+    0xDE6262,
+    0xFFB88C,
+    0xFFD0B3,
+    0xF5E0D3,
+    0x027B7F,
+    0xFFA588,
+    0xD62957,
+    0xBF1E62,
+    0x572E4F,
+    0x99B898,
+    0xFECEA8,
+    0xFF847C,
+    0xE84A5F,
+    0x2A363B
+};
+
+uint getValueAt(ivec2 pos){
+    int byte_idx = pos.y * cell_count + pos.x;
+    int int_idx = byte_idx / 4;
+    int off = byte_idx % 4;
+
+    uint mask = (1<<8) - 1;
+
+    return (state[int_idx] >> ((3 - off) * 8)) & mask;
+}
+
 void main()
 {
     vertexPos = aPos; 
