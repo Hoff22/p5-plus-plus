@@ -18,7 +18,7 @@ namespace glu{
 		GLint cell_count;
 		GLubyte state[N * 4];
 	};
-	
+
 	GLuint buildShaderDataBuffer(GLuint binding = 0){
 		GLuint DBO;
 		glGenBuffers(1, &DBO);

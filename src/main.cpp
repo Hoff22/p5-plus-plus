@@ -6,6 +6,9 @@
 #include <vector>
 #include <map>
 #include <chrono>
+#include <thread>
+         // std::mutex
+
 
 #include "glUtils.hpp"
 #include "flood_fill.hpp"
@@ -20,6 +23,8 @@ using namespace std;
 using namespace glm;
 
 int done = 0;
+
+void process();
 
 int setup_GLAD_GLFW_OpenGL_Shard(string program_window_name);
 
@@ -53,15 +58,9 @@ int main() {
 
 	Shader sh = Shader("shaders/vert.glsl", "shaders/frag.glsl");
 
-	auto t1 = high_resolution_clock::now();
-	flf::init(MainWindow::input_values[0],MainWindow::input_values[1]);
-	auto t2 = high_resolution_clock::now();
-	/* Getting number of milliseconds as a double. */
-    duration<double, std::milli> ms_double = t2 - t1;
+	flf::init(MainWindow::input_values[0], MainWindow::input_values[1]);
 
-    cout << fixed << setprecision(2) << ms_double.count() << "ms to init\n";
-
-    t1 = high_resolution_clock::now();
+    thread processThread = thread(process);
 
 	while (MainWindow::is_open()) {
 		MainWindow::handle_input();
@@ -71,7 +70,6 @@ int main() {
 			sh = Shader("shaders/vert.glsl", "shaders/frag.glsl");
 		}
 		if(MainWindow::input_values[3]){
-			t1 = high_resolution_clock::now();
 			done = 0;
 			MainWindow::input_values[3] = 0;
 			flf::init(MainWindow::input_values[0],MainWindow::input_values[1]);
@@ -102,31 +100,20 @@ int main() {
 		MainWindow::drawUI();
 		glViewport(0,0,MainWindow::SCR_WIDTH, MainWindow::SCR_HEIGHT);
 		glfwSwapBuffers(MainWindow::window);
-
-		if(!done){
-			int bigStep = MainWindow::input_values[2];
-			while(bigStep--){
-				done = flf::step();
-			}
-		}
-		else if(done == 1){
-			done = 2;
-			cout << "Done!" << endl;
-			for(auto [i, j] : flf::seeds){
-				if(i >= flf::sd.cell_count) continue;
-				int idx = i * flf::sd.cell_count + j;
-				flf::sd.state[idx] = flf::_seed_n + 1;
-			}
-
-			t2 = high_resolution_clock::now();
-			ms_double = t2 - t1;
-			cout << ms_double.count() / 1000.0 << "s to complete\n";
-		}
 	}
 	// clean up
+
+    processThread.join();
+
 	MainWindow::cleanupUI();
 
 	return 0;
+}
+
+void process(){
+	while (MainWindow::is_open()){
+		flf::step();
+	}
 }
 
 int setup_GLAD_GLFW_OpenGL_Shard(string program_window_name) {

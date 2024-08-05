@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <mutex> 
 
 #include "glutils.hpp"
 
@@ -13,7 +14,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace flf{
-
 	int _cell_n;
 	int _seed_n;
 
@@ -50,13 +50,7 @@ namespace flf{
 		}
 	}
 
-	int step(bool debug = 0){
-
-		static int step_size_cur = 1000000000;
-
-		if(q.empty()){
-			return 1;
-		}
+	int step(std::tuple<int,int,int,int> qfront = {-1,-1,-1,-1}, bool debug = 0){
 
 		static int dir[8][2] = {
 			{-1, -1},
@@ -68,10 +62,17 @@ namespace flf{
 			{0, -1},
 			{0, 1}
 		};
-
+		static int step_size_cur = 1000000000;
+		
 		int i, j, step, try_col;
-		std::tie(i, j, step, try_col) = q.front();
-		q.pop();
+		
+		std::tie(i, j, step, try_col) = qfront;
+
+		if(i == -1){
+			if(q.empty()) return 1;
+			std::tie(i, j, step, try_col) = q.front();
+			q.pop();
+		}
 
 		int cur_idx = i * sd.cell_count + j;
 
